@@ -10,5 +10,5 @@ Desktop.ini
 
 # npm
 node_modules
-*.log
+*.log 
 *.gz
