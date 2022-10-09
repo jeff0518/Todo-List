@@ -10,7 +10,10 @@ app.set('view engine', 'hbs')
 const mongoose = require('mongoose') // 載入 mongoose
 mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true,  useUnifiedTopology: true } ) // 設定連線到 mongoDB
 const db = mongoose.connection
-
+// 引用 body-parser
+const bodyParser = require('body-parser')
+// 用 app.use 規定每一筆請求都需要透過 body-parser 進行前置處理
+app.use(bodyParser.urlencoded({ extended: true }))
 db.on('error', () => {
   console.log('mongodb error!')
 })
@@ -25,6 +28,17 @@ app.get('/', (req, res) => {
     .lean()
     .then(todos => res.render('index', { todos }))
     .catch(error => console.error(error))
+})
+
+app.get('/todos/new', (req, res) => {
+  return res.render('new')
+})
+
+app.post('/todos', (req, res) => {
+  const name =req.body.name
+  return Todo.create({ name })
+    .then(() => res.redirect('/'))
+    .catch(error => console.log(error))
 })
 
 app.listen(port, (req, res) => {
