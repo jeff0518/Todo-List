@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 const port = 3000
+const Todo = require('./models/todo')
 //Handlebars 設定
 const exphbs = require('express-handlebars')
 app.engine('hbs', exphbs({ defaultLayout: 'main', extname: '.hbs' }))
@@ -20,7 +21,10 @@ db.once('open', () => {
 
 
 app.get('/', (req, res) => {
-  res.render('index')
+  Todo.find()
+    .lean()
+    .then(todos => res.render('index', { todos }))
+    .catch(error => console.error(error))
 })
 
 app.listen(port, (req, res) => {
