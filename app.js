@@ -26,8 +26,9 @@ db.once('open', () => {
 app.get('/', (req, res) => {
   Todo.find()
     .lean()
-    .then(todos => res.render('index', { todos }))
-    .catch(error => console.error(error))
+    .sort({ _id: "asc" })
+    .then((todos) => res.render("index", { todos }))
+    .catch((error) => console.error(error));
 })
 
 app.get('/todos/new', (req, res) => {
