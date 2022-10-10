@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const routes = require('./routes')
 const port = 3000;
 // 載入 method-override
 const methodOverride = require('method-override') 
@@ -21,7 +22,7 @@ const bodyParser = require("body-parser");
 // 用 app.use 規定每一筆請求都需要透過 body-parser 進行前置處理
 app.use(bodyParser.urlencoded({ extended: true }));
 // 設定每一筆請求都會透過 methodOverride 進行前置處理
-app.use(methodOverride('_method'))
+
 db.on("error", () => {
   console.log("mongodb error!");
 });
@@ -29,62 +30,8 @@ db.on("error", () => {
 db.once("open", () => {
   console.log("mongodb connected");
 });
-
-app.get("/", (req, res) => {
-  Todo.find()
-    .lean()
-    .sort({ _id: "asc" })
-    .then((todos) => res.render("index", { todos }))
-    .catch((error) => console.error(error));
-});
-
-app.get("/todos/new", (req, res) => {
-  return res.render("new");
-});
-
-app.post("/todos", (req, res) => {
-  const name = req.body.name;
-  return Todo.create({ name })
-    .then(() => res.redirect("/"))
-    .catch((error) => console.log(error));
-});
-
-app.get("/todos/:id", (req, res) => {
-  const id = req.params.id;
-  return Todo.findById(id)
-    .lean()
-    .then((todo) => res.render("detail", { todo }))
-    .catch((error) => console.log(error));
-});
-
-app.get("/todos/:id/edit", (req, res) => {
-  const id = req.params.id;
-  return Todo.findById(id)
-    .lean()
-    .then((todo) => res.render("edit", { todo }))
-    .catch((error) => console.log(error));
-});
-
-app.put("/todos/:id", (req, res) => {
-  const id = req.params.id;
-  const { name, isDone } = req.body;
-  return Todo.findById(id)
-    .then((todo) => {
-      todo.name = name;
-      todo.isDone = isDone === "on";
-      return todo.save();
-    })
-    .then(() => res.redirect(`/todos/${id}`))
-    .catch((error) => console.log(error));
-});
-
-app.delete("/todos/:id", (req, res) => {
-  const id = req.params.id;
-  return Todo.findById(id)
-    .then((todo) => todo.remove())
-    .then(() => res.redirect("/"))
-    .catch((error) => console.log(error));
-});
+app.use(methodOverride("_method"));
+app.use(routes)
 
 app.listen(port, (req, res) => {
   console.log(`App is running on http://localhost:${port}`);
